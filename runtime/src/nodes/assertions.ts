@@ -5,7 +5,7 @@ export function assertOk(): ScopeFunction {
 }
 
 function deepEquals(thiz: any, that: any) {
-  // not exactly deep, fix later
+  // TODO not exactly deep, fix later
   return thiz === that;
 }
 
@@ -44,6 +44,8 @@ export function jsonPathToFunction(extractor: Extractor | string) {
     return extractor;
   }
   return ($: any) => {
+    // TODO: not exactly safe, but then again, this is a test runner.
+    // if you don't trust your own tests...
     return eval(extractor);
   };
 }
