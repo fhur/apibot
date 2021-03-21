@@ -6,14 +6,41 @@ const keyAssertionFailed = `${namespace}.lastFailedAssertion`;
 
 export type Scope = { [str: string]: any };
 
-export type ScopeFunction = (scope: Scope) => Scope | Promise<Scope>;
+interface ExecutionHistory {
+  append(scope: Scope, metadata: { node: string }): Scope;
+}
 
 export type ExecutionResult = {
   scope: Scope;
   timestamp: number;
 };
 
-export type ExecutionHistory = ExecutionResult[];
+export type App = {
+  executionHistory: ExecutionHistory;
+};
+
+export type ScopeFunction = (scope: Scope, app: App) => Scope | Promise<Scope>;
+
+export type Node = {
+  fn: ScopeFunction;
+  id: string;
+};
+
+export async function executeNode(fn: ScopeFunction, scope: Scope, app: App) {
+  try {
+    const resultingScope = await fn(scope, app);
+    app.executionHistory.append(resultingScope, { node: fn.name });
+    return resultingScope;
+  } catch (error) {
+    const err = error as Error;
+    const resultingScope = writeAssertionFailed(scope, {
+      message: "Failed to execute node",
+      error: `${err.name}: ${err.message}\n${err.stack}`,
+    });
+    app.executionHistory.append(resultingScope, { node: fn.name });
+    return resultingScope;
+  }
+}
 
 export type HttpResponse = {
   status: number;
@@ -21,7 +48,12 @@ export type HttpResponse = {
   body: any;
 };
 
-export type Assertion = { message: string; expected?: any; actual?: any };
+export type Assertion = {
+  message: string;
+  expected?: any;
+  actual?: any;
+  error?: any;
+};
 
 export type HttpRequest = {
   method?: string;

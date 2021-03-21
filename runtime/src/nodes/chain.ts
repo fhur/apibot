@@ -1,10 +1,10 @@
-import { ScopeFunction, Scope, containsFailedAssertion } from "./node";
+import { ScopeFunction, containsFailedAssertion, executeNode } from "./node";
 
 export function chain(...fns: ScopeFunction[]): ScopeFunction {
-  return async (initialScope) => {
+  return async (initialScope, app) => {
     let scope = initialScope;
     for (const node of fns) {
-      scope = await node(scope);
+      scope = await executeNode(node, scope, app);
       if (containsFailedAssertion(scope)) {
         break;
       }

@@ -71,6 +71,9 @@ export async function parseSwaggerSpecUrl(swaggerSpecUrl: string) {
     json.components.securitySchemes
   );
 
+  const serverUrl: string | undefined = json.servers[0]?.url;
+  const pathName = (serverUrl && new URL(serverUrl).pathname) || "";
+
   return Object.entries(json.paths).flatMap(
     ([url, swaggerPathObject]: [string, any]) => {
       const methods = ["get", "put", "delete", "post"];
@@ -88,7 +91,7 @@ export async function parseSwaggerSpecUrl(swaggerSpecUrl: string) {
             const parameters = endpoint.parameters || [];
             return {
               id: endpoint.operationId,
-              url,
+              url: pathName + url,
               method: method.toUpperCase(),
               queryParams: convertQueryParams(parameters),
               headers: convertHeaderParams(parameters).concat(globalHeaders),
@@ -98,3 +101,8 @@ export async function parseSwaggerSpecUrl(swaggerSpecUrl: string) {
     }
   );
 }
+
+// For testing
+// parseSwaggerSpecUrl(
+//   "https://dint.caramelspec.com/quotation/v3/api-docs/api"
+// ).then(console.log);

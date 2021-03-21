@@ -6,7 +6,6 @@ import {
 } from "./node";
 import fetch, { Headers, Response } from "node-fetch";
 import { renderTemplate } from "../template";
-import { resolve } from "node:path";
 
 function serializeBody(body: any) {
   if (typeof body === "string") {
@@ -49,7 +48,7 @@ function encodeQueryParams(queryParams: Record<string, string>) {
 }
 
 export function http(args: HttpRequest): ScopeFunction {
-  return async (scope) => {
+  return async function http(scope) {
     const request = renderTemplate(scope, args);
     const {
       method = "GET",
@@ -68,11 +67,11 @@ export function http(args: HttpRequest): ScopeFunction {
     // TODO: encodeQueryParams should check that the url doesn't already have params
     const response = await fetch(urlWithQueryParams, requestInit);
 
-    console.warn(urlWithQueryParams, response.status);
+    console.warn(method, urlWithQueryParams, response.status);
 
     return writeLastResponse(
       scope,
-      { ...requestInit, url: urlWithQueryParams },
+      { ...requestInit, url: urlWithQueryParams, body: body },
       {
         status: response.status,
         headers: normalizeHeaders(response.headers),

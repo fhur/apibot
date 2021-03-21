@@ -12,7 +12,7 @@ export function extractHeader(opts: {
   headerName: string;
   name: string;
 }): ScopeFunction {
-  return (scope) => {
+  return function extractHeader(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -38,11 +38,11 @@ export function extractResponse(opts: {
   extractor: (response: HttpResponse) => any;
   as: string;
 }): ScopeFunction {
-  return (scope) => {
+  return function extractResponse(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
-        message: `Failed to extract, no previous HTTP response found.`,
+        message: `extractResponse failed: no previous HTTP response found.`,
       });
     }
 
@@ -73,7 +73,7 @@ export function extractBody(opts: {
   extract: Extractor | string;
   as: string;
 }): ScopeFunction {
-  return (scope) => {
+  return async function extractBody(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {

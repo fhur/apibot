@@ -4,6 +4,7 @@ import {
   clearAssertionFailure,
   Scope,
   ScopeFunction,
+  executeNode,
 } from "./node";
 
 function logRepeatUntil(scope: Scope) {
@@ -25,12 +26,12 @@ export function repeatUntil({
   until: ScopeFunction;
   waitMillis: number;
 }): ScopeFunction {
-  return async (initialScope) => {
+  return async function repeatUntil(initialScope, app) {
     let scope = initialScope;
 
     while (true) {
-      scope = await repeat(clearAssertionFailure(scope));
-      scope = until(scope);
+      scope = await executeNode(repeat, clearAssertionFailure(scope), app);
+      scope = await executeNode(until, scope, app);
 
       if (!containsFailedAssertion(scope)) {
         return scope;

@@ -16,11 +16,11 @@ export function assertStatus({
   from: number;
   to: number;
 }): ScopeFunction {
-  return (scope) => {
+  return function assertStatus(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
-        message: `No previous HTTP response found.`,
+        message: `assertStatus failed: No previous HTTP response found.`,
       });
     }
 
@@ -54,16 +54,16 @@ export function assertBodyEquals({
   expected,
   extract,
 }: {
-  extract: (body: any) => any | string;
+  extract: string | ((body: any) => any);
   expected: any;
 }): ScopeFunction {
   const extractor = jsonPathToFunction(extract);
 
-  return (scope) => {
+  return function assertBodyEquals(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
-        message: `No previous HTTP response found.`,
+        message: `assertBodyEquals failed: No previous HTTP response found.`,
       });
     }
 
@@ -92,12 +92,12 @@ export function assertBodyOneOf({
   options,
   extract,
 }: {
-  extract: (body: any) => any | string;
+  extract: string | ((body: any) => any);
   options: any[];
 }): ScopeFunction {
   const extractor = jsonPathToFunction(extract);
 
-  return (scope) => {
+  return function assertBodyOneOf(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {

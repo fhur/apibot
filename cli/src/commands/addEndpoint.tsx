@@ -9,6 +9,9 @@ export type ProjectConfig = {
   swaggerUrls: string[];
   envs: Record<string, object>;
   defaultEnv?: string;
+
+  // Added by apibot
+  logsDir: string;
 };
 
 function Endpoint({
@@ -39,8 +42,23 @@ function Endpoint({
 }
 
 function matchesQuery(req: RequestSpec, query: string) {
-  const text = `${req.method} ${req.url}`;
-  return text.includes(query);
+  let remainingChars = `${req.method} ${req.url}`.split("");
+  let startingIndex = 0;
+  for (const queryChar of query) {
+    let match = false;
+    for (let i = startingIndex; i < remainingChars.length; i++) {
+      if (remainingChars[i] === queryChar) {
+        match = true;
+        startingIndex = i + 1;
+        break;
+      }
+    }
+    if (match === false) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function AddSwaggerEndpoint({

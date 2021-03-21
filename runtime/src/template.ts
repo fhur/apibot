@@ -1,7 +1,7 @@
 import { Scope } from "./nodes/node";
 
-function assertPresent(x: any, msg: string = "") {
-  if (!x) {
+function assertDefined(x: any, msg: string = "") {
+  if (x === undefined) {
     throw new Error("assert present failed: " + msg);
   }
   return x;
@@ -13,7 +13,7 @@ function renderStringTemplate(scope: Scope, str: string) {
     .map((part, index) => {
       const isVariable = index % 2;
       if (isVariable) {
-        return assertPresent(
+        return assertDefined(
           scope[part],
           "Expected scope to contain key " + part
         );

@@ -4,12 +4,19 @@ import { addEndpoint, ProjectConfig } from "./commands/addEndpoint";
 import { initializeProject } from "./commands/initializeProject";
 import { runScenario } from "./commands/runScenario";
 import fs from "fs";
+import path from "path";
+
 const version = "0.0.1";
 const name = "apibot";
 
 function readConfigFile(): ProjectConfig {
-  const parsed = JSON.parse(fs.readFileSync("./apibot.config.json").toString());
-  return parsed;
+  const configFilePath = "./apibot.config.json";
+  const parsed = JSON.parse(fs.readFileSync(configFilePath).toString());
+  const projectDir = path.dirname(path.resolve(configFilePath));
+
+  const logsDir = path.join(projectDir, "logs");
+
+  return { ...parsed, logsDir };
 }
 
 const config = readConfigFile();
@@ -44,7 +51,7 @@ const runCommand = new Command()
   .arguments("<path>")
   .option(
     "--env <env>",
-    "The environment to use",
+    "A comma separated list of environments.",
     readConfigFile().defaultEnv || ""
   )
   .option(
@@ -59,9 +66,9 @@ const runCommand = new Command()
   )
   .action((path, options) => {
     runScenario({
-      path,
+      pathToFile: path,
       args: JSON.parse(options.args),
-      env: options.env,
+      envs: (options.env as string).split(",").map((s) => s.trim()),
       logLevel: options.logLevel,
       config,
     });
