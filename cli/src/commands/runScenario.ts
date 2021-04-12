@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { compileTest } from "../compiler";
 import { ProjectConfig } from "./addEndpoint";
+import { isExecNode } from "@apibot/runtime";
+import { executeNode } from "@apibot/runtime/build/nodes/node";
 
 type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 
@@ -76,14 +78,29 @@ export async function runScenario({
 
   if (!func || typeof func !== "function") {
     throw new Error(
-      `No function found in ${pathToFile}. Make sure that you are exporting a function properly.`
+      `No function found in ${pathToFile}. Make sure that you are exporting a function properly.
+
+Example:
+
+// Notice the export keyword
+export function yourFunctionName() {
+  return http({
+    method: "GET", 
+    url: "https://google.com"
+  })
+}
+`
     );
   }
 
   const initialScope = createInitialScope(envs, config, args);
   const app = createApp(config);
-  const scopeFn = func(args);
+  const execNode = func(args);
 
-  const finalScope = await scopeFn(initialScope, app);
+  if (!isExecNode(execNode)) {
+    throw new Error("Expected scopeFn to be a node");
+  }
+
+  const finalScope = await executeNode(execNode, initialScope, app as any);
   console.log(JSON.stringify(finalScope, null, 2));
 }

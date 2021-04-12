@@ -5,6 +5,7 @@ import { initializeProject } from "./commands/initializeProject";
 import { runScenario } from "./commands/runScenario";
 import fs from "fs";
 import path from "path";
+import { compileTest, requireTsFile } from "./compiler";
 
 const version = "0.0.1";
 const name = "apibot";
@@ -71,7 +72,49 @@ const runCommand = new Command()
       envs: (options.env as string).split(",").map((s) => s.trim()),
       logLevel: options.logLevel,
       config,
+    }).catch((e) => {
+      console.error(e);
     });
+  });
+
+const compileCommand = new Command()
+  .name("compile")
+  .description("Compiles project to JSON file")
+  .action((path, options) => {
+    const prog = compileTest("./tsconfig.json");
+    const out = prog
+      .getSourceFiles()
+      .filter(
+        (sf) =>
+          sf.getFilePath().includes("/src/endpoints/") ||
+          sf.getFilePath().includes("/src/scenarios/")
+      )
+      .flatMap((x) => {
+        const imports = requireTsFile(x.getFilePath());
+        return Object.entries(imports).flatMap(([exportName, func]) => {
+          try {
+            // @ts-ignore
+            const x = func();
+            if (x.type && x.title && x.fn) {
+              const title = exportName || x.title;
+              console.warn("Found", title);
+              return [
+                {
+                  ...x,
+                  id: title,
+                  title,
+                  // path: x.getFilePath().replace(/.+\/src\//, ""),
+                },
+              ];
+            }
+            return [];
+          } catch (e) {
+            // ignore
+            return [];
+          }
+        });
+      });
+    console.log(JSON.stringify(out, null, 2));
   });
 
 const program = new Command()
@@ -79,6 +122,7 @@ const program = new Command()
   .name(name)
   .addCommand(addCommand)
   .addCommand(initCommand)
-  .addCommand(runCommand);
+  .addCommand(runCommand)
+  .addCommand(compileCommand);
 
 program.parse(process.argv);
