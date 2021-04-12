@@ -1,11 +1,15 @@
 import {
   HttpRequest,
   HttpResponse,
+  Scope,
   ScopeFunction,
   writeLastResponse,
+  AnyNode,
+  callerId,
 } from "./node";
 import fetch, { Headers, Response } from "node-fetch";
 import { renderTemplate } from "../template";
+import { captureStackTrace } from "../utils/captureStackTrace";
 
 function serializeBody(body: any) {
   if (typeof body === "string") {
@@ -47,8 +51,8 @@ function encodeQueryParams(queryParams: Record<string, string>) {
   return `?` + encoded;
 }
 
-export function http(args: HttpRequest): ScopeFunction {
-  return async function http(scope) {
+export function http(args: HttpRequest): AnyNode {
+  async function http(scope: Scope): Promise<Scope> {
     const request = renderTemplate(scope, args);
     const {
       method = "GET",
@@ -78,5 +82,20 @@ export function http(args: HttpRequest): ScopeFunction {
         body: await normalizeBody(response),
       }
     );
+  }
+  const { id, title } = callerId();
+
+  return {
+    id,
+    type: "apibot.http-node",
+    title,
+    fn: http,
+    config: [
+      { name: "method", value: args.method },
+      { name: "url", value: args.url },
+      { name: "body", value: args.body },
+      { name: "headers", value: args.headers },
+      { name: "queryParams", value: args.queryParams },
+    ],
   };
 }

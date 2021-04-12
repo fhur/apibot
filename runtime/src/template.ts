@@ -37,7 +37,11 @@ export function renderTemplate<
   }
   if (Object.keys(obj).length > 0) {
     const copy: Record<string, any> = {};
-    for (const [key, value] of Object.entries(obj)) {
+    const entries = Object.entries(obj);
+    for (const [key, value] of entries) {
+      if (key === "$get" && typeof value === "string" && entries.length === 1) {
+        return scope[value];
+      }
       copy[key] = renderTemplate(scope, value);
     }
     return copy as T;

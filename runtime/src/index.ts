@@ -3,5 +3,6 @@ export * from "./nodes/extractors";
 export * from "./nodes/http";
 export * from "./nodes/chain";
 export * from "./nodes/repeatUntil";
-
-export { Scope } from "./nodes/node";
+export * from "./nodes/when";
+export * as generators from "./generators";
+export { Scope, AnyNode, ExecNode, isExecNode } from "./nodes/node";

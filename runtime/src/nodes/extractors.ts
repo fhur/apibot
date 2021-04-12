@@ -1,5 +1,7 @@
 import { Extractor, jsonPathToFunction } from "./assertions";
 import {
+  AnyNode,
+  callerId,
   findHeader,
   findLastResponse,
   HttpResponse,
@@ -11,8 +13,8 @@ import {
 export function extractHeader(opts: {
   headerName: string;
   name: string;
-}): ScopeFunction {
-  return function extractHeader(scope) {
+}): AnyNode {
+  const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -32,13 +34,25 @@ export function extractHeader(opts: {
       [opts.name]: header,
     };
   };
+
+  const { id, title } = callerId();
+  return {
+    id,
+    type: "apibot.extract-header",
+    title,
+    fn,
+    config: [
+      { name: "headerName", value: opts.headerName },
+      { name: "name", value: opts.name },
+    ],
+  };
 }
 
 export function extractResponse(opts: {
-  extractor: (response: HttpResponse) => any;
+  extractor: string | ((response: HttpResponse) => any);
   as: string;
-}): ScopeFunction {
-  return function extractResponse(scope) {
+}): AnyNode {
+  const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -47,6 +61,17 @@ export function extractResponse(opts: {
     }
 
     return extractFrom(scope, httpResponse, opts.as, opts.extractor);
+  };
+
+  return {
+    id: "TODO",
+    type: "apibot.extract-response",
+    title: "Extract Response",
+    fn,
+    config: [
+      { name: "extractor", value: opts.extractor },
+      { name: "as", value: opts.as },
+    ],
   };
 }
 
@@ -72,8 +97,8 @@ export function extractFrom(
 export function extractBody(opts: {
   extract: Extractor | string;
   as: string;
-}): ScopeFunction {
-  return async function extractBody(scope) {
+}): AnyNode {
+  const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -82,5 +107,17 @@ export function extractBody(opts: {
     }
 
     return extractFrom(scope, httpResponse.body, opts.as, opts.extract);
+  };
+
+  const { id, title } = callerId();
+  return {
+    id,
+    type: "apibot.extract-body",
+    title,
+    fn,
+    config: [
+      { name: "extract", value: opts.extract },
+      { name: "as", value: opts.as },
+    ],
   };
 }

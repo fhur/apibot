@@ -1,3 +1,5 @@
+import { captureStackTrace } from "../utils/captureStackTrace";
+
 const namespace = "apibot";
 
 const keyLastResponse = `${namespace}.lastResponse`;
@@ -21,12 +23,26 @@ export type App = {
 
 export type ScopeFunction = (scope: Scope, app: App) => Scope | Promise<Scope>;
 
-export type Node = {
+export type PropertyControl = any;
+
+export type ExecNode = {
+  // TODO
+  id?: string;
+  type: string;
+  title?: string;
   fn: ScopeFunction;
-  id: string;
+  config?: Array<{ name: string; value: any }>;
 };
 
-export async function executeNode(fn: ScopeFunction, scope: Scope, app: App) {
+export function isExecNode(x: any): x is ExecNode {
+  return x && typeof x.type === "string" && typeof x.fn === "function";
+}
+
+export type AnyNode = ExecNode | ScopeFunction;
+
+export async function executeNode(node: AnyNode, scope: Scope, app: App) {
+  const fn = typeof node === "function" ? node : node.fn;
+  const id = typeof node === "function" ? node.name : node.id;
   try {
     const resultingScope = await fn(scope, app);
     app.executionHistory.append(resultingScope, { node: fn.name });
@@ -34,7 +50,7 @@ export async function executeNode(fn: ScopeFunction, scope: Scope, app: App) {
   } catch (error) {
     const err = error as Error;
     const resultingScope = writeAssertionFailed(scope, {
-      message: "Failed to execute node",
+      message: `Failed to execute node: ${id}`,
       error: `${err.name}: ${err.message}\n${err.stack}`,
     });
     app.executionHistory.append(resultingScope, { node: fn.name });
@@ -110,5 +126,14 @@ export function writeAssertionFailed(
   return {
     ...scope,
     [keyAssertionFailed]: assertionFailed,
+  };
+}
+
+export function callerId() {
+  const stack = captureStackTrace();
+  const item = stack[3];
+  return {
+    id: `${item.file} ${item.symbol} ${item.line}:${item.row}`,
+    title: item.symbol.replace("Object.", ""),
   };
 }

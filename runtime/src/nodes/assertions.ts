@@ -1,6 +1,12 @@
-import { findLastResponse, ScopeFunction, writeAssertionFailed } from "./node";
+import {
+  AnyNode,
+  callerId,
+  findLastResponse,
+  ScopeFunction,
+  writeAssertionFailed,
+} from "./node";
 
-export function assertOk(): ScopeFunction {
+export function assertOk(): AnyNode {
   return assertStatus({ from: 200, to: 299 });
 }
 
@@ -15,8 +21,8 @@ export function assertStatus({
 }: {
   from: number;
   to: number;
-}): ScopeFunction {
-  return function assertStatus(scope) {
+}): AnyNode {
+  const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -34,6 +40,18 @@ export function assertStatus({
     }
 
     return scope;
+  };
+
+  const { id, title } = callerId();
+  return {
+    id,
+    type: "apibot.assert-status",
+    title,
+    fn,
+    config: [
+      { name: "from", value: from },
+      { name: "to", value: to },
+    ],
   };
 }
 

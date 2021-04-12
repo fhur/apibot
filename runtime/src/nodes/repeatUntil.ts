@@ -5,6 +5,7 @@ import {
   Scope,
   ScopeFunction,
   executeNode,
+  AnyNode,
 } from "./node";
 
 function logRepeatUntil(scope: Scope) {
@@ -22,11 +23,11 @@ export function repeatUntil({
   until,
   waitMillis,
 }: {
-  repeat: ScopeFunction;
-  until: ScopeFunction;
+  repeat: AnyNode;
+  until: AnyNode;
   waitMillis: number;
-}): ScopeFunction {
-  return async function repeatUntil(initialScope, app) {
+}): AnyNode {
+  const fn: ScopeFunction = async (initialScope, app) => {
     let scope = initialScope;
 
     while (true) {
@@ -46,5 +47,16 @@ export function repeatUntil({
 
       logRepeatUntil(scope);
     }
+  };
+  return {
+    id: "TODO",
+    type: "apibot.repeat-until",
+    title: "Repeat Until",
+    fn,
+    config: [
+      { name: "repeat", value: repeat },
+      { name: "until", value: until },
+      { name: "waitMillis", value: waitMillis },
+    ],
   };
 }
