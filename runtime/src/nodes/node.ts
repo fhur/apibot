@@ -9,7 +9,7 @@ const keyAssertionFailed = `${namespace}.lastFailedAssertion`;
 export type Scope = { [str: string]: any };
 
 interface ExecutionHistory {
-  append(scope: Scope, metadata: { node: string }): Scope;
+  append(scope: Scope, metadata: { node: ExecNode }): void;
 }
 
 export type ExecutionResult = {
@@ -40,20 +40,38 @@ export function isExecNode(x: any): x is ExecNode {
 
 export type AnyNode = ExecNode | ScopeFunction;
 
-export async function executeNode(node: AnyNode, scope: Scope, app: App) {
-  const fn = typeof node === "function" ? node : node.fn;
-  const id = typeof node === "function" ? node.name : node.id;
+export function createNode(
+  parentId: string,
+  index: number | string,
+  anyNode: AnyNode
+): ExecNode {
+  const childId = `${parentId}.${index}`;
+  if (typeof anyNode === "function") {
+    return {
+      fn: anyNode,
+      type: "apibot.eval",
+      id: childId,
+    };
+  }
+  return {
+    ...anyNode,
+    id: childId,
+  };
+}
+
+export async function executeNode(node: ExecNode, scope: Scope, app: App) {
+  const { fn } = node;
   try {
     const resultingScope = await fn(scope, app);
-    app.executionHistory.append(resultingScope, { node: fn.name });
+    app.executionHistory.append(resultingScope, { node });
     return resultingScope;
   } catch (error) {
     const err = error as Error;
     const resultingScope = writeAssertionFailed(scope, {
-      message: `Failed to execute node: ${id}`,
+      message: `Failed to execute node: ${node.id}`,
       error: `${err.name}: ${err.message}\n${err.stack}`,
     });
-    app.executionHistory.append(resultingScope, { node: fn.name });
+    app.executionHistory.append(resultingScope, { node });
     return resultingScope;
   }
 }
@@ -132,8 +150,9 @@ export function writeAssertionFailed(
 export function callerId() {
   const stack = captureStackTrace();
   const item = stack[3];
+  const symbol = item.symbol.replace("Object.", "");
   return {
-    id: `${item.file} ${item.symbol} ${item.line}:${item.row}`,
-    title: item.symbol.replace("Object.", ""),
+    id: `${item.file.replace(/.+\/build\//, "")} ${symbol}`,
+    title: symbol,
   };
 }

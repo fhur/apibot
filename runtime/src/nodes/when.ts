@@ -1,10 +1,10 @@
-import { AnyNode, executeNode, Scope, ScopeFunction } from "./node";
+import { AnyNode, ExecNode, executeNode, Scope, ScopeFunction } from "./node";
 
 function evalInScope(condition: string, $: Scope) {
   return eval(condition);
 }
 
-export function when(args: Record<string, AnyNode>): AnyNode {
+export function when(args: Record<string, ExecNode>): AnyNode {
   const scopeFunc: ScopeFunction = (scope, app) => {
     const [, fn] = Object.entries(args).find(
       ([condition, fn]) =>

@@ -14,8 +14,9 @@ const tryConnection = () => {
     if (!startedElectron) {
       console.log("starting electron");
       startedElectron = true;
-      const exec = childProcess.exec;
-      exec("npm run electron");
+      const childProc = childProcess.exec("yarn run electron");
+      childProc.stdout.pipe(process.stdout);
+      childProc.stderr.pipe(process.stderr);
     }
   });
 };

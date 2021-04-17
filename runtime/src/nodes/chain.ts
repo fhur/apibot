@@ -1,29 +1,28 @@
 import {
-  ScopeFunction,
-  containsFailedAssertion,
-  executeNode,
-  findFailedAssertion,
-  findLastResponse,
   AnyNode,
   callerId,
+  containsFailedAssertion,
+  createNode,
+  executeNode,
+  findFailedAssertion,
+  ScopeFunction,
 } from "./node";
 
 export function chain(...fns: AnyNode[]): AnyNode {
+  const { id, title } = callerId();
+  const nodes = fns.map((node, index) => createNode(id, index, node));
+
   const fn: ScopeFunction = async (initialScope, app) => {
     let scope = initialScope;
-    for (const node of fns) {
+    for (const node of nodes) {
       scope = await executeNode(node, scope, app);
       if (containsFailedAssertion(scope)) {
         const { message, error } = findFailedAssertion(scope)!;
-        console.error(message);
+
         if (error) {
           console.error(error);
-        }
-
-        const lastReponse = findLastResponse(scope);
-
-        if (lastReponse) {
-          console.error(JSON.stringify(lastReponse, null, 1));
+        } else {
+          console.error(message);
         }
 
         break;
@@ -31,7 +30,7 @@ export function chain(...fns: AnyNode[]): AnyNode {
     }
     return scope;
   };
-  const { id, title } = callerId();
+
   return {
     id,
     type: "apibot.chain",
@@ -40,14 +39,7 @@ export function chain(...fns: AnyNode[]): AnyNode {
     config: [
       {
         name: "fns",
-        value: fns.map((x) =>
-          typeof x === "function"
-            ? {
-                type: "apibot.eval",
-                title: x.name,
-              }
-            : x
-        ),
+        value: nodes,
       },
     ],
   };

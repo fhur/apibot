@@ -97,10 +97,6 @@ export function yourFunctionName() {
   const app = createApp(config);
   const execNode = func(args);
 
-  if (!isExecNode(execNode)) {
-    throw new Error("Expected scopeFn to be a node");
-  }
-
   const finalScope = await executeNode(execNode, initialScope, app as any);
   console.log(JSON.stringify(finalScope, null, 2));
 }

@@ -1,4 +1,3 @@
-import { ipc } from "./model/ipc";
 import {
   Button,
   Colors,
@@ -16,12 +15,13 @@ import React from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import "./App.css";
 import { CenterPanel } from "./components/CenterPanel";
+import { Editor } from "./components/Editor";
 import { LeftPanel } from "./components/LeftPanel";
 import { NavigationBar } from "./components/Navbar";
 import { RightPanel } from "./components/RightPanel";
 import { SearchItem } from "./components/SearchPanel/SearchItem";
+import { useExecuteGraph } from "./model/useExecuteGraph";
 import {
-  $currentConfigPath,
   $currentExecution,
   $executionRequestId,
   $omniboxQuery,
@@ -32,7 +32,6 @@ import {
   $showAlert,
   $showDrawer,
 } from "./state";
-import { Editor } from "./components/Editor";
 
 function App() {
   const showAlert = useSetRecoilState($showAlert);
@@ -166,38 +165,19 @@ function Omnibox() {
 
 function AlertConfirmExecuteGraph() {
   const [showAlert, setShowAlert] = useRecoilState($showAlert);
-  const setShowDrawer = useSetRecoilState($showDrawer);
-  const [executionRequestId, setExecutionRequestId] = useRecoilState(
-    $executionRequestId
-  );
+  const [executionRequestId] = useRecoilState($executionRequestId);
   const selectedGraph = useRecoilValue($selectedGraph);
   const selectedEnvironmentId = useRecoilValue($selectedEnvironmentId);
-  const currentConfigPath = useRecoilValue($currentConfigPath);
-  const setCurrentExecution = useSetRecoilState($currentExecution);
-  function executeNode() {
-    setShowAlert(undefined);
-    const requestId = "execution-request-id: " + Math.floor(Date.now() / 10000);
-    setExecutionRequestId(requestId);
-    ipc
-      .executeGraph({
-        graphId: selectedGraph!.id,
-        configFilePath: currentConfigPath,
-        envId: selectedEnvironmentId!,
-      })
-      .then((scope) => setCurrentExecution(scope))
-      .finally(() => {
-        setExecutionRequestId(undefined);
-        setShowDrawer(true);
-      });
-    console.log("Execute node " + selectedEnvironmentId, requestId);
-  }
+
+  const executeGraph = useExecuteGraph();
+
   const handleExecuteNode = React.useCallback(
     (e) => {
       if (e.key === "Enter") {
-        executeNode();
+        executeGraph();
       }
     },
-    [executeNode]
+    [executeGraph]
   );
 
   return (
@@ -217,7 +197,7 @@ function AlertConfirmExecuteGraph() {
           fill={false}
           style={{ maxWidth: 150 }}
           onKeyUp={handleExecuteNode}
-          onClick={executeNode}
+          onClick={executeGraph}
           autoFocus
         >
           Run on {selectedEnvironmentId}

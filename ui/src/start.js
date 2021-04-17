@@ -1,6 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { compileProject, executeGraph } = require("@apibot/compiler");
 
+const log = require("electron-log");
+console.log = log.log;
+
 const path = require("path");
 const url = require("url");
 
@@ -48,12 +51,16 @@ app.on("activate", () => {
   }
 });
 
+function toSerializable(x) {
+  return JSON.parse(JSON.stringify(x));
+}
+
 async function wrapInIpcResponse(makeRequest) {
   try {
     const response = await makeRequest();
     return {
       ok: true,
-      response: JSON.parse(JSON.stringify(response)),
+      response: toSerializable(response),
     };
   } catch (e) {
     return { ok: false, error: e.toString() };
@@ -61,14 +68,12 @@ async function wrapInIpcResponse(makeRequest) {
 }
 
 ipcMain.handle("fetch-compiled-graph", (event, apibotConfigUrl) => {
-  console.log("[fetch-compiled-graph]", `compiling ${apibotConfigUrl}`);
   return wrapInIpcResponse(() => compileProject(apibotConfigUrl));
 });
 
 ipcMain.handle("executeGraph", (event, graphId, apibotConfigUrl, envId) => {
-  console.log("[executeGraph]", `Handling execute graph`);
   const onAppend = (logEntry) => {
-    ipcMain.emit("onLogEntry", logEntry);
+    event.sender.send("onLogEntry", toSerializable(logEntry));
   };
 
   return wrapInIpcResponse(() =>

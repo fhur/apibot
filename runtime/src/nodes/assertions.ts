@@ -1,3 +1,4 @@
+import { renderTemplate } from "../template";
 import {
   AnyNode,
   callerId,
@@ -131,8 +132,8 @@ export function assertBodyOneOf({
         message: `Failed to extract from body: ${e}`,
       });
     }
-
-    const match = options.find((option) => {
+    const temlpatedOptions = renderTemplate(scope, options);
+    const match = temlpatedOptions.find((option) => {
       return deepEquals(option, extracted);
     });
 

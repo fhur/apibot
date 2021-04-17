@@ -48,11 +48,17 @@ async function compileProject(
   return handleResponse(response);
 }
 
-ipcRenderer.on("onLogEntry", (_, logEntry) => {
-  console.log("[onLogEntry]", logEntry);
-});
+function onLogEntry(cb: (event: { nodeId: string; scope: Scope }) => void) {
+  const fn = (_: any, data: any) => cb(data);
+  ipcRenderer.on("onLogEntry", fn);
+
+  return () => {
+    ipcRenderer.off("onLogEntry", fn);
+  };
+}
 
 export const ipc = {
   executeGraph,
   compileProject,
+  onLogEntry,
 };

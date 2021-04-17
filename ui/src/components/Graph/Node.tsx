@@ -2,13 +2,14 @@ import { ExecNode } from "@apibot/runtime";
 import { Colors } from "@blueprintjs/core";
 import styled from "@emotion/styled";
 import * as React from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import * as Nodes from "../../model/nodes";
-import { $selectedNodeId, $showAlert } from "../../state";
+import { $scopeByNodeId, $selectedNodeId, $showAlert } from "../../state";
 
 export function GraphNodeView({ node }: { node: ExecNode }) {
   const [, setSelectedNodeId] = useRecoilState($selectedNodeId);
   const setShowAlert = useSetRecoilState($showAlert);
+  const scope = useRecoilValue($scopeByNodeId(node.id!));
 
   const handleKey = React.useCallback(
     (e) => {
@@ -22,10 +23,14 @@ export function GraphNodeView({ node }: { node: ExecNode }) {
   return (
     <Container
       tabIndex={0}
-      style={{ borderColor: Nodes.color(node) }}
+      style={{
+        borderColor: Nodes.color(node),
+        opacity: scope === undefined ? 0.5 : 1,
+      }}
       onKeyUp={handleKey}
       onFocus={() => setSelectedNodeId(node.id)}
     >
+      <RowNodeLabel>{node.id}</RowNodeLabel>
       <RowNodeLabel>{Nodes.title(node)}</RowNodeLabel>
       <RowNodeType>{Nodes.getNodeType(node)}</RowNodeType>
     </Container>

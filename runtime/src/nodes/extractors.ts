@@ -83,6 +83,13 @@ export function extractFrom(
 ): Scope {
   try {
     const extracted = jsonPathToFunction(extractor)(from);
+
+    if (extracted === undefined) {
+      return writeAssertionFailed(scope, {
+        message: `Nothing was found when extracting using ${extractor}`,
+      });
+    }
+
     return {
       ...scope,
       [as]: extracted,

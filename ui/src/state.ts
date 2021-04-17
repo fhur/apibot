@@ -1,7 +1,8 @@
 import { CompiledGraph } from "@apibot/compiler";
 import { ExecNode, Scope } from "@apibot/runtime";
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
 import { ipc } from "./model/ipc";
+import { keySelectedGraphId, read, write } from "./model/storage";
 import * as Nodes from "./model/nodes";
 
 export const $searchQuery = atom({
@@ -94,20 +95,37 @@ export const $executionRequestId = atom<string | undefined>({
 
 export const $selectedGraphId = atom<string | undefined>({
   key: "selectedGraphId",
-  default: undefined,
+  default: read(keySelectedGraphId),
 });
 
 export const $selectedGraph = selector<CompiledGraph | undefined>({
   key: "selectedGraph",
   get: ({ get }) => {
-    const _selectedGraphId = get($selectedGraphId);
-    return get($nodes).find((n) => n.id === _selectedGraphId);
+    const selectedGraphId = get($selectedGraphId);
+    if (selectedGraphId) {
+      write(keySelectedGraphId, selectedGraphId);
+    }
+
+    return get($nodes).find((n) => n.id === selectedGraphId);
   },
 });
 
 export const $currentExecution = atom<Scope>({
   key: "currentExecution",
   default: {},
+});
+
+export const $scopes = atom<Record<string, Scope>>({
+  key: "scopes",
+  default: {},
+});
+
+export const $scopeByNodeId = selectorFamily({
+  key: "scopeByNodeId",
+  get: (nodeId: string) => ({ get }): Scope | undefined => {
+    const scopes = get($scopes);
+    return scopes[nodeId];
+  },
 });
 
 export const $nodes = selector<CompiledGraph[]>({
