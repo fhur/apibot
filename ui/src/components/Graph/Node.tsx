@@ -30,7 +30,6 @@ export function GraphNodeView({ node }: { node: ExecNode }) {
       onKeyUp={handleKey}
       onFocus={() => setSelectedNodeId(node.id)}
     >
-      <RowNodeLabel>{node.id}</RowNodeLabel>
       <RowNodeLabel>{Nodes.title(node)}</RowNodeLabel>
       <RowNodeType>{Nodes.getNodeType(node)}</RowNodeType>
     </Container>

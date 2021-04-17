@@ -49,16 +49,16 @@ export function assertStatus({
     type: "apibot.assert-status",
     title,
     fn,
-    config: [
-      { name: "from", value: from },
-      { name: "to", value: to },
-    ],
+    config: {
+      from: { type: "number", value: from },
+      to: { type: "number", value: to },
+    },
   };
 }
 
-export type Extractor = (x: any) => any;
+export type Extractor = (x: any) => any | string;
 
-export function jsonPathToFunction(extractor: Extractor | string) {
+export function jsonPathToFunction(extractor: Extractor) {
   if (typeof extractor === "function") {
     return extractor;
   }
@@ -73,7 +73,7 @@ export function assertBodyEquals({
   expected,
   extract,
 }: {
-  extract: string | ((body: any) => any);
+  extract: Extractor;
   expected: any;
 }): ScopeFunction {
   const extractor = jsonPathToFunction(extract);
@@ -111,7 +111,7 @@ export function assertBodyOneOf({
   options,
   extract,
 }: {
-  extract: string | ((body: any) => any);
+  extract: Extractor;
   options: any[];
 }): ScopeFunction {
   const extractor = jsonPathToFunction(extract);

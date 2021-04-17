@@ -16,16 +16,16 @@ export function indexProps(
 
 export function title(node: ExecNode): string {
   if (node.type === "apibot.http-node") {
-    const { method, url } = indexProps(node.config);
-    return method + " " + url.replace("{rootUrl}/", "");
+    const { method, url } = node.config;
+    return method.value + " " + url.value.replace("{rootUrl}/", "");
   }
   if (node.type === "apibot.assert-status") {
-    const { from, to } = indexProps(node.config);
-    return `${from} to ${to}`;
+    const { from, to } = node.config;
+    return `${from.value} to ${to.value}`;
   }
   if (node.type === "apibot.extract-body") {
-    const { extract, as } = indexProps(node.config);
-    return `${extract} to ${as}`;
+    const { extract, as } = node.config;
+    return `${extract.value} to ${as.value}`;
   }
   return node.title || node.type;
 }
@@ -49,7 +49,7 @@ export function color(node: ExecNode): string {
 
 export function getChildren(node: ExecNode): ExecNode[] {
   if (node.type === "apibot.chain") {
-    return indexProps(node.config).fns;
+    return node.config.fns.value;
   }
   return [node];
 }

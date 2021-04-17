@@ -41,15 +41,15 @@ export function extractHeader(opts: {
     type: "apibot.extract-header",
     title,
     fn,
-    config: [
-      { name: "headerName", value: opts.headerName },
-      { name: "name", value: opts.name },
-    ],
+    config: {
+      headerName: { type: "string", value: opts.headerName },
+      as: { type: "string", value: opts.name },
+    },
   };
 }
 
 export function extractResponse(opts: {
-  extractor: string | ((response: HttpResponse) => any);
+  extractor: Extractor;
   as: string;
 }): AnyNode {
   const fn: ScopeFunction = (scope) => {
@@ -68,10 +68,10 @@ export function extractResponse(opts: {
     type: "apibot.extract-response",
     title: "Extract Response",
     fn,
-    config: [
-      { name: "extractor", value: opts.extractor },
-      { name: "as", value: opts.as },
-    ],
+    config: {
+      extract: { type: "string", value: opts.extractor },
+      as: { type: "string", value: opts.as },
+    },
   };
 }
 
@@ -79,7 +79,7 @@ export function extractFrom(
   scope: Scope,
   from: any,
   as: string,
-  extractor: Extractor | string
+  extractor: Extractor
 ): Scope {
   try {
     const extracted = jsonPathToFunction(extractor)(from);
@@ -101,10 +101,7 @@ export function extractFrom(
   }
 }
 
-export function extractBody(opts: {
-  extract: Extractor | string;
-  as: string;
-}): AnyNode {
+export function extractBody(opts: { extract: Extractor; as: string }): AnyNode {
   const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
@@ -122,9 +119,9 @@ export function extractBody(opts: {
     type: "apibot.extract-body",
     title,
     fn,
-    config: [
-      { name: "extract", value: opts.extract },
-      { name: "as", value: opts.as },
-    ],
+    config: {
+      extract: { type: "string", value: opts.extract },
+      as: { type: "string", value: opts.as },
+    },
   };
 }

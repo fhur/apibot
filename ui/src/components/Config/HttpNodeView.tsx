@@ -1,51 +1,39 @@
 import { ExecNode } from "@apibot/runtime";
 import { Colors, ControlGroup, FormGroup, InputGroup } from "@blueprintjs/core";
 import styled from "@emotion/styled";
-import Editor from "@monaco-editor/react";
-import { indexProps } from "./../../model/nodes";
+import { Editor } from "./../Editor";
 
 export function HttpNodeView({ node }: { node: ExecNode }) {
-  const { method, url, headers = {}, queryParams = {}, body } = indexProps(
-    node.config
-  );
+  if (node.type !== "apibot.http-node") {
+    throw Error("Expected HTTP node");
+  }
+  const {
+    method,
+    url,
+    headers = { value: {} },
+    queryParams = { value: {} },
+    body,
+  } = node.config;
+
   return (
     <Container>
       <FormGroup label="URL">
         <ControlGroup vertical={false}>
           <InputGroup
             placeholder="method"
-            value={method}
+            value={method.value}
             style={{ width: 80 }}
           />
-          <InputGroup placeholder="url" fill value={url} />
+          <InputGroup placeholder="url" fill value={url.value} />
         </ControlGroup>
       </FormGroup>
 
-      <KeyValueView label="Query Params" object={queryParams} />
+      <KeyValueView label="Query Params" object={queryParams.value} />
 
-      <KeyValueView label="Headers" object={headers} />
+      <KeyValueView label="Headers" object={headers.value} />
 
       <EditorFormGroup label="Body">
-        {body && (
-          <EditorWrapper>
-            <Editor
-              defaultLanguage="json"
-              value={JSON.stringify(body, null, 2)}
-              options={{
-                minimap: { enabled: false },
-                lineNumbers: "off",
-                scrollBeyondLastLine: false,
-                contextmenu: false,
-                selectionHighlight: false,
-                overviewRulerBorder: false,
-                overviewRulerLanes: false,
-                folding: false,
-                fixedOverflowWidgets: true,
-                automaticLayout: true,
-              }}
-            />
-          </EditorWrapper>
-        )}
+        {body && <Editor value={JSON.stringify(body, null, 2)} />}
       </EditorFormGroup>
     </Container>
   );
@@ -67,14 +55,8 @@ const EditorFormGroup = styled(FormGroup)`
   }
 `;
 
-const EditorWrapper = styled.div`
-  border-radius: 3px;
-  border: 1px solid ${Colors.LIGHT_GRAY1};
-  height: 100%;
-`;
-
 export function KeyValueView({
-  object,
+  object = {},
   label,
 }: {
   object: object;

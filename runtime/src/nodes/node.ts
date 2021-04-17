@@ -1,4 +1,5 @@
 import { captureStackTrace } from "../utils/captureStackTrace";
+import { Extractor } from "./assertions";
 
 const namespace = "apibot";
 
@@ -23,16 +24,70 @@ export type App = {
 
 export type ScopeFunction = (scope: Scope, app: App) => Scope | Promise<Scope>;
 
-export type PropertyControl = any;
+export type PropertyControl = { type: any; value: any };
 
-export type ExecNode = {
-  // TODO
-  id?: string;
-  type: string;
-  title?: string;
-  fn: ScopeFunction;
-  config?: Array<{ name: string; value: any }>;
-};
+export type ExecNode =
+  | {
+      id: string;
+      type: "apibot.chain";
+      title: string;
+      fn: ScopeFunction;
+      config: { fns: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.assert-status";
+      title: string;
+      fn: ScopeFunction;
+      config: { from: PropertyControl; to: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.http-node";
+      title: string;
+      fn: ScopeFunction;
+      config: {
+        method: PropertyControl;
+        url: PropertyControl;
+        body: PropertyControl;
+        headers: PropertyControl;
+        queryParams: PropertyControl;
+      };
+    }
+  | {
+      id: string;
+      type: "apibot.config";
+      title?: string;
+      fn: ScopeFunction;
+      config: { configuration: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.extract-header";
+      title?: string;
+      fn: ScopeFunction;
+      config: { headerName: PropertyControl; as: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.extract-body";
+      title?: string;
+      fn: ScopeFunction;
+      config: { extract: PropertyControl; as: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.extract-response";
+      title?: string;
+      fn: ScopeFunction;
+      config: { extract: PropertyControl; as: PropertyControl };
+    }
+  | {
+      id: string;
+      type: "apibot.eval";
+      title?: string;
+      fn: ScopeFunction;
+    };
 
 export function isExecNode(x: any): x is ExecNode {
   return x && typeof x.type === "string" && typeof x.fn === "function";

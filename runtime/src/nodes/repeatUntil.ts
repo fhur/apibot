@@ -1,13 +1,13 @@
 import {
-  containsFailedAssertion,
-  findFailedAssertion,
-  clearAssertionFailure,
-  Scope,
-  ScopeFunction,
-  executeNode,
   AnyNode,
   callerId,
+  clearAssertionFailure,
+  containsFailedAssertion,
   createNode,
+  executeNode,
+  findFailedAssertion,
+  Scope,
+  ScopeFunction,
 } from "./node";
 
 function logRepeatUntil(scope: Scope, label: string) {
@@ -44,7 +44,7 @@ export function repeatUntil({
         clearAssertionFailure(scope),
         app
       );
-      scope = await executeNode(createNode(id, "until", repeat), scope, app);
+      scope = await executeNode(createNode(id, "until", until), scope, app);
 
       if (!containsFailedAssertion(scope)) {
         return scope;
@@ -60,15 +60,17 @@ export function repeatUntil({
       logRepeatUntil(scope, message);
     }
   };
-  return {
-    id,
-    title,
-    type: "apibot.repeat-until",
-    fn,
-    config: [
-      { name: "repeat", value: repeat },
-      { name: "until", value: until },
-      { name: "waitMillis", value: waitMillis },
-    ],
-  };
+
+  return fn;
+  // return {
+  //   id,
+  //   title,
+  //   type: "apibot.repeat-until",
+  //   fn,
+  //   config: [
+  //     { name: "repeat", value: repeat },
+  //     { name: "until", value: until },
+  //     { name: "waitMillis", value: waitMillis },
+  //   ],
+  // };
 }

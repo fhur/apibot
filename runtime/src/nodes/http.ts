@@ -1,15 +1,13 @@
+import fetch, { Headers, Response } from "node-fetch";
+import { renderTemplate } from "../template";
 import {
+  AnyNode,
+  callerId,
   HttpRequest,
   HttpResponse,
   Scope,
-  ScopeFunction,
   writeLastResponse,
-  AnyNode,
-  callerId,
 } from "./node";
-import fetch, { Headers, Response } from "node-fetch";
-import { renderTemplate } from "../template";
-import { captureStackTrace } from "../utils/captureStackTrace";
 
 function serializeBody(body: any) {
   if (typeof body === "string") {
@@ -90,12 +88,12 @@ export function http(args: HttpRequest): AnyNode {
     type: "apibot.http-node",
     title,
     fn: http,
-    config: [
-      { name: "method", value: args.method },
-      { name: "url", value: args.url },
-      { name: "body", value: args.body },
-      { name: "headers", value: args.headers },
-      { name: "queryParams", value: args.queryParams },
-    ],
+    config: {
+      method: { type: "string", value: args.method },
+      url: { type: "string", value: args.url },
+      body: { type: "string", value: args.body },
+      headers: { type: "string", value: args.headers },
+      queryParams: { type: "string", value: args.queryParams },
+    },
   };
 }

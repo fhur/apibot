@@ -36,11 +36,11 @@ export function chain(...fns: AnyNode[]): AnyNode {
     type: "apibot.chain",
     title,
     fn,
-    config: [
-      {
-        name: "fns",
+    config: {
+      fns: {
+        type: "fns",
         value: nodes,
       },
-    ],
+    },
   };
 }

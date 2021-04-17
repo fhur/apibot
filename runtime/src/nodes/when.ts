@@ -12,10 +12,5 @@ export function when(args: Record<string, ExecNode>): AnyNode {
     )!;
     return executeNode(fn, scope, app);
   };
-  return {
-    type: "apibot.when",
-    title: "When",
-    fn: scopeFunc,
-    config: [{ name: "args", value: args }],
-  };
+  return scopeFunc;
 }

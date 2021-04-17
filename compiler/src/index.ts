@@ -116,11 +116,12 @@ export async function executeGraph(
 
   return executeNode(node, initialScope, app);
 }
+console.log("running compiler");
 
-const compiledProject = compileProject(
-  "/Users/fernandohur/iptiq/iptiq-policy-admin-tester/apibot.config.json"
-);
-fs.writeFileSync(
-  "/tmp/compiled.json",
-  JSON.stringify(compiledProject, null, 2)
-);
+// const compiledProject = compileProject(
+//   "/Users/fernandohur/iptiq/iptiq-policy-admin-tester/apibot.config.json"
+// );
+// fs.writeFileSync(
+//   "/tmp/compiled.json",
+//   JSON.stringify(compiledProject, null, 2)
+// );
