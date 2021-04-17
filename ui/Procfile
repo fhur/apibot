@@ -1,0 +1,4 @@
+react: yarn run react-start
+electron: yarn run electron-start
+compiler: yarn --cwd ../compiler run watch
+runtime: yarn --cwd ../runtime run watch
