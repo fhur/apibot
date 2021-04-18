@@ -1,5 +1,5 @@
 import { ExecNode } from "@apibot/runtime";
-import { Colors, ControlGroup, FormGroup, InputGroup } from "@blueprintjs/core";
+import { ControlGroup, FormGroup, InputGroup } from "@blueprintjs/core";
 import styled from "@emotion/styled";
 import { Editor } from "./../Editor";
 
@@ -33,7 +33,7 @@ export function HttpNodeView({ node }: { node: ExecNode }) {
       <KeyValueView label="Headers" object={headers.value} />
 
       <EditorFormGroup label="Body">
-        {body && <Editor value={JSON.stringify(body, null, 2)} />}
+        {body.value && <Editor value={JSON.stringify(body.value, null, 2)} />}
       </EditorFormGroup>
     </Container>
   );

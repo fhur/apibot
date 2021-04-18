@@ -89,7 +89,7 @@ export function http(args: HttpRequest): AnyNode {
     title,
     fn: http,
     config: {
-      method: { type: "string", value: args.method },
+      method: { type: "string", value: args.method || "GET" },
       url: { type: "string", value: args.url },
       body: { type: "string", value: args.body },
       headers: { type: "string", value: args.headers },

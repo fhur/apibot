@@ -86,6 +86,7 @@ export type ExecNode =
       id: string;
       type: "apibot.eval";
       title?: string;
+      config: undefined;
       fn: ScopeFunction;
     };
 
@@ -106,6 +107,7 @@ export function createNode(
       fn: anyNode,
       type: "apibot.eval",
       id: childId,
+      config: undefined,
     };
   }
   return {
