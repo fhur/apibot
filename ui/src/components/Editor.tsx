@@ -24,9 +24,12 @@ export function Editor2({ value }: { value: string }) {
   );
 }
 
-export function Editor({ value }: { value: string }) {
+export function JsonEditor({ value }: { value: any }) {
+  return null;
   const ref = React.useRef<HTMLDivElement>(null);
-  const [model] = React.useState(monaco.editor.createModel(value, "json"));
+  const [model, setModel] = React.useState<monaco.editor.ITextModel | null>(
+    null
+  );
   React.useEffect(() => {
     const editor = monaco.editor.create(ref.current!, {
       minimap: { enabled: false },
@@ -41,11 +44,17 @@ export function Editor({ value }: { value: string }) {
       automaticLayout: true,
     });
 
+    const str = JSON.stringify(value ?? null, null, 2);
+    const model = monaco.editor.createModel(str, "json");
     editor.setModel(model);
+    setModel(model);
   }, []);
 
   React.useEffect(() => {
-    model.setValue(value);
+    const str = JSON.stringify(value ?? null, null, 2);
+    if (model) {
+      model.setValue(str);
+    }
   }, [value]);
 
   return (

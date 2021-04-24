@@ -1,15 +1,17 @@
 import { ExecNode } from "@apibot/runtime";
 import {
+  Colors,
   FormGroup,
-  H1,
   H4,
-  NonIdealState,
   NumericInput,
+  Tab,
+  Tabs,
 } from "@blueprintjs/core";
 import styled from "@emotion/styled";
 import React from "react";
 import { useRecoilValue } from "recoil";
-import { $selectedNode } from "../../state";
+import { $scopeByNodeId, $selectedNode } from "../../state";
+import { ScopeSearch } from "../ScopeDrawer";
 import { ExtractHeaderView } from "./ExtractHeaderView";
 import { HttpNodeView } from "./HttpNodeView";
 
@@ -47,15 +49,42 @@ const nodeViewRegistry: Record<string, typeof HttpNodeView> = {
 };
 
 function DefaultNode() {
-  return <p>no selected node</p>;
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        color: Colors.GRAY1,
+      }}
+    >
+      no selected node
+    </div>
+  );
 }
 
 export function SelectedNodeView() {
   const selectedNode = useRecoilValue($selectedNode);
+  const scope = useRecoilValue($scopeByNodeId(selectedNode?.id ?? ""));
   if (!selectedNode) {
     return <div>no selected node</div>;
   }
   const type = selectedNode.type;
   const NodeView = nodeViewRegistry[type as any] ?? DefaultNode;
-  return <NodeView node={selectedNode} />;
+  return (
+    <Tabs defaultSelectedTabId="config" id="selected-node-tabs">
+      <Tab
+        id="config"
+        title="Config"
+        panel={<NodeView node={selectedNode} />}
+      />
+      <Tab
+        id="scope"
+        title={"Scope"}
+        disabled={scope === undefined}
+        panel={<ScopeSearch scope={scope} />}
+      />
+    </Tabs>
+  );
 }

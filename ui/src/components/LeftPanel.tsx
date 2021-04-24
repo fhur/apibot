@@ -1,6 +1,7 @@
 import React from "react";
 import { useRecoilValue } from "recoil";
 import { $searchResultNodes } from "../state";
+import { FileSystemView } from "./FileSystemView";
 import { SearchBox } from "./SearchPanel/SearchBox";
 import { SearchItem } from "./SearchPanel/SearchItem";
 
@@ -8,10 +9,7 @@ export function LeftPanel() {
   const nodes = useRecoilValue($searchResultNodes);
   return (
     <div style={styleLeftPanel}>
-      <SearchBox />
-      {nodes.map((node, index) => {
-        return <SearchItem key={"node-" + index} graph={node} />;
-      })}
+      <FileSystemView graphs={nodes} />
     </div>
   );
 }

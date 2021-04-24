@@ -1,8 +1,6 @@
 import {
   Button,
-  Colors,
   Dialog,
-  Drawer,
   HotkeyConfig,
   InputGroup,
   useHotkeys,
@@ -15,14 +13,13 @@ import React from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import "./App.css";
 import { CenterPanel } from "./components/CenterPanel";
-import { Editor } from "./components/Editor";
 import { LeftPanel } from "./components/LeftPanel";
 import { NavigationBar } from "./components/Navbar";
 import { RightPanel } from "./components/RightPanel";
 import { SearchItem } from "./components/SearchPanel/SearchItem";
 import { useExecuteGraph } from "./model/useExecuteGraph";
+import { ScopeDrawer } from "./components/ScopeDrawer";
 import {
-  $currentExecution,
   $executionRequestId,
   $omniboxQuery,
   $omniboxResults,
@@ -213,60 +210,6 @@ const Container = styled.div`
   padding: 16px 16px 0 16px;
   align-items: center;
 `;
-
-function ScopeDrawer() {
-  const [showDrawer, setShowDrawer] = useRecoilState($showDrawer);
-  const currentExecution = useRecoilValue($currentExecution);
-  const [filterScopeQuery, setFilterScopeQuery] = React.useState("");
-
-  function filterCurrentExecution(scope: any, filterScopeQuery: string) {
-    const keys = filterScopeQuery
-      .trim()
-      .split(" ")
-      .filter((x) => x.trim().length > 0);
-    if (keys.length === 0) {
-      return scope;
-    }
-    let filteredScope = scope;
-    let lastKey = keys[0];
-    for (const key of keys) {
-      try {
-        const match = Object.entries(filteredScope).find(([entryKey]) =>
-          entryKey.toLowerCase().includes(key.toLowerCase())
-        );
-        if (!match) {
-          return {};
-        }
-        lastKey = match[0];
-        filteredScope = match[1];
-      } catch (_) {
-        return { [lastKey]: filteredScope };
-      }
-    }
-    return { [lastKey]: filteredScope };
-  }
-
-  const filteredScope = filterCurrentExecution(
-    currentExecution,
-    filterScopeQuery
-  );
-
-  return (
-    <Drawer isOpen={showDrawer} onClose={() => setShowDrawer(false)} size="90%">
-      <InputGroup
-        value={filterScopeQuery}
-        onChange={(e) => setFilterScopeQuery(e.target.value)}
-        autoFocus
-        placeholder="type to filter"
-        style={{
-          borderRadius: 0,
-          borderBottom: `1px solid ${Colors.LIGHT_GRAY1}`,
-        }}
-      ></InputGroup>
-      <Editor value={JSON.stringify(filteredScope, null, 2)} />
-    </Drawer>
-  );
-}
 
 export default App;
 
