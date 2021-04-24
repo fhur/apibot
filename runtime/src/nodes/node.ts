@@ -26,69 +26,26 @@ export type ScopeFunction = (scope: Scope, app: App) => Scope | Promise<Scope>;
 
 export type PropertyControl = { type: any; value: any };
 
+type PropertyControls<Args> = Record<keyof Args, PropertyControl>;
+
+export type ApibotNode<Type, Args, Config = PropertyControls<Args>> = {
+  id: string;
+  type: Type;
+  title: string;
+  fn: ScopeFunction;
+  args: Args;
+  config: Config;
+};
+
 export type ExecNode =
-  | {
-      id: string;
-      type: "apibot.chain";
-      title: string;
-      fn: ScopeFunction;
-      config: { fns: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.assert-status";
-      title: string;
-      fn: ScopeFunction;
-      config: { from: PropertyControl; to: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.http-node";
-      title: string;
-      fn: ScopeFunction;
-      config: {
-        method: PropertyControl;
-        url: PropertyControl;
-        body: PropertyControl;
-        headers: PropertyControl;
-        queryParams: PropertyControl;
-      };
-    }
-  | {
-      id: string;
-      type: "apibot.config";
-      title?: string;
-      fn: ScopeFunction;
-      config: { configuration: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.extract-header";
-      title?: string;
-      fn: ScopeFunction;
-      config: { headerName: PropertyControl; as: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.extract-body";
-      title?: string;
-      fn: ScopeFunction;
-      config: { extract: PropertyControl; as: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.extract-response";
-      title?: string;
-      fn: ScopeFunction;
-      config: { extract: PropertyControl; as: PropertyControl };
-    }
-  | {
-      id: string;
-      type: "apibot.eval";
-      title?: string;
-      config: undefined;
-      fn: ScopeFunction;
-    };
+  | ApibotNode<"apibot.chain", { fns: ExecNode[] }>
+  | ApibotNode<"apibot.assert-status", { from: number; to: number }>
+  | ApibotNode<"apibot.http-node", HttpRequest>
+  | ApibotNode<"apibot.config", { configuration: Record<string, any> }>
+  | ApibotNode<"apibot.extract-header", { headerName: string; as: string }>
+  | ApibotNode<"apibot.extract-body", { extract: Extractor; as: string }>
+  | ApibotNode<"apibot.extract-response", { extract: Extractor; as: string }>
+  | ApibotNode<"apibot.eval", undefined, undefined>;
 
 export function isExecNode(x: any): x is ExecNode {
   return x && typeof x.type === "string" && typeof x.fn === "function";
@@ -106,8 +63,10 @@ export function createNode(
     return {
       fn: anyNode,
       type: "apibot.eval",
+      title: anyNode.name,
       id: childId,
       config: undefined,
+      args: undefined,
     };
   }
   return {

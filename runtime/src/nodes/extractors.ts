@@ -10,28 +10,28 @@ import {
   writeAssertionFailed,
 } from "./node";
 
-export function extractHeader(opts: {
+export function extractHeader(args: {
   headerName: string;
-  name: string;
+  as: string;
 }): AnyNode {
   const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
-        message: `Failed to extract header ${opts.headerName}. No previous HTTP response found.`,
+        message: `Failed to extract header ${args.headerName}. No previous HTTP response found.`,
       });
     }
 
-    const header = findHeader(httpResponse, opts.headerName);
+    const header = findHeader(httpResponse, args.headerName);
     if (!header) {
       return writeAssertionFailed(scope, {
-        message: `Failed to extract header ${opts.headerName}. No header found with that name.`,
+        message: `Failed to extract header ${args.headerName}. No header found with that name.`,
       });
     }
 
     return {
       ...scope,
-      [opts.name]: header,
+      [args.as]: header,
     };
   };
 
@@ -41,15 +41,16 @@ export function extractHeader(opts: {
     type: "apibot.extract-header",
     title,
     fn,
+    args: args,
     config: {
-      headerName: { type: "string", value: opts.headerName },
-      as: { type: "string", value: opts.name },
+      headerName: { type: "string", value: args.headerName },
+      as: { type: "string", value: args.as },
     },
   };
 }
 
-export function extractResponse(opts: {
-  extractor: Extractor;
+export function extractResponse(args: {
+  extract: Extractor;
   as: string;
 }): AnyNode {
   const fn: ScopeFunction = (scope) => {
@@ -60,7 +61,7 @@ export function extractResponse(opts: {
       });
     }
 
-    return extractFrom(scope, httpResponse, opts.as, opts.extractor);
+    return extractFrom(scope, httpResponse, args.as, args.extract);
   };
 
   return {
@@ -68,9 +69,10 @@ export function extractResponse(opts: {
     type: "apibot.extract-response",
     title: "Extract Response",
     fn,
+    args,
     config: {
-      extract: { type: "string", value: opts.extractor },
-      as: { type: "string", value: opts.as },
+      extract: { type: "string", value: args.extract },
+      as: { type: "string", value: args.as },
     },
   };
 }
@@ -101,7 +103,7 @@ export function extractFrom(
   }
 }
 
-export function extractBody(opts: { extract: Extractor; as: string }): AnyNode {
+export function extractBody(args: { extract: Extractor; as: string }): AnyNode {
   const fn: ScopeFunction = (scope) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
@@ -110,7 +112,7 @@ export function extractBody(opts: { extract: Extractor; as: string }): AnyNode {
       });
     }
 
-    return extractFrom(scope, httpResponse.body, opts.as, opts.extract);
+    return extractFrom(scope, httpResponse.body, args.as, args.extract);
   };
 
   const { id, title } = callerId();
@@ -119,9 +121,10 @@ export function extractBody(opts: { extract: Extractor; as: string }): AnyNode {
     type: "apibot.extract-body",
     title,
     fn,
+    args,
     config: {
-      extract: { type: "string", value: opts.extract },
-      as: { type: "string", value: opts.as },
+      extract: { type: "string", value: args.extract },
+      as: { type: "string", value: args.as },
     },
   };
 }

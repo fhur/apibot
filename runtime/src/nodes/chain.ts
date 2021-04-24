@@ -36,6 +36,7 @@ export function chain(...fns: AnyNode[]): AnyNode {
     type: "apibot.chain",
     title,
     fn,
+    args: { fns: nodes },
     config: {
       fns: {
         type: "fns",

@@ -49,6 +49,7 @@ export function assertStatus({
     type: "apibot.assert-status",
     title,
     fn,
+    args: { from, to },
     config: {
       from: { type: "number", value: from },
       to: { type: "number", value: to },
@@ -56,7 +57,7 @@ export function assertStatus({
   };
 }
 
-export type Extractor = (x: any) => any | string;
+export type Extractor = ((x: any) => any) | string;
 
 export function jsonPathToFunction(extractor: Extractor) {
   if (typeof extractor === "function") {

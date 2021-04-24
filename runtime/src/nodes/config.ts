@@ -13,6 +13,7 @@ export function config(
     type: "apibot.config",
     title,
     fn,
+    args: { configuration },
     config: { configuration: { type: "object", value: configuration } },
   };
 }

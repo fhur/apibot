@@ -88,6 +88,7 @@ export function http(args: HttpRequest): AnyNode {
     type: "apibot.http-node",
     title,
     fn: http,
+    args,
     config: {
       method: { type: "string", value: args.method || "GET" },
       url: { type: "string", value: args.url },
