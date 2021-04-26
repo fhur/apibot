@@ -1,5 +1,6 @@
 import {
   AnyNode,
+  ApibotNode,
   callerId,
   containsFailedAssertion,
   createNode,
@@ -8,11 +9,13 @@ import {
   ScopeFunction,
 } from "./node";
 
-export function chain(...fns: AnyNode[]): AnyNode {
+export type NodeChain = ApibotNode<"apibot.chain", void>;
+
+export function chain(...fns: AnyNode[]): NodeChain {
   const { id, title } = callerId();
   const nodes = fns.map((node, index) => createNode(id, index, node));
 
-  const fn: ScopeFunction = async (initialScope, app) => {
+  const fn: ScopeFunction<void> = async (initialScope, _, app) => {
     let scope = initialScope;
     for (const node of nodes) {
       scope = await executeNode(node, scope, app);
@@ -36,7 +39,7 @@ export function chain(...fns: AnyNode[]): AnyNode {
     type: "apibot.chain",
     title,
     fn,
-    args: { fns: nodes },
+    args: void 0,
     config: {
       fns: {
         type: "fns",

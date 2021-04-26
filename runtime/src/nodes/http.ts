@@ -1,11 +1,10 @@
 import fetch, { Headers, Response } from "node-fetch";
 import { renderTemplate } from "../template";
 import {
-  AnyNode,
+  ApibotNode,
   callerId,
   HttpRequest,
   HttpResponse,
-  Scope,
   writeLastResponse,
 } from "./node";
 
@@ -49,8 +48,10 @@ function encodeQueryParams(queryParams: Record<string, string>) {
   return `?` + encoded;
 }
 
-export function http(args: HttpRequest): AnyNode {
-  async function http(scope: Scope): Promise<Scope> {
+export type NodeHttp = ApibotNode<"apibot.http-node", HttpRequest>;
+
+export function http(defaultArgs: HttpRequest): NodeHttp {
+  const fn: NodeHttp["fn"] = async (scope, args) => {
     const request = renderTemplate(scope, args);
     const {
       method = "GET",
@@ -80,21 +81,21 @@ export function http(args: HttpRequest): AnyNode {
         body: await normalizeBody(response),
       }
     );
-  }
+  };
   const { id, title } = callerId();
 
   return {
     id,
     type: "apibot.http-node",
     title,
-    fn: http,
-    args,
+    fn,
+    args: defaultArgs,
     config: {
-      method: { type: "string", value: args.method || "GET" },
-      url: { type: "string", value: args.url },
-      body: { type: "string", value: args.body },
-      headers: { type: "string", value: args.headers },
-      queryParams: { type: "string", value: args.queryParams },
+      method: { type: "string", value: defaultArgs.method || "GET" },
+      url: { type: "string", value: defaultArgs.url },
+      body: { type: "string", value: defaultArgs.body },
+      headers: { type: "string-map", value: defaultArgs.headers ?? {} },
+      queryParams: { type: "string-map", value: defaultArgs.queryParams ?? {} },
     },
   };
 }

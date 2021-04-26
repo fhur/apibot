@@ -1,10 +1,15 @@
-import { AnyNode, callerId, ScopeFunction } from "./node";
+import { ApibotNode, callerId } from "./node";
+
+export type NodeConfig = ApibotNode<
+  "apibot.config",
+  { configuration: Record<string, string> }
+>;
 
 export function config(
-  configuration: Record<string, number | boolean | string | null>
-): AnyNode {
-  const fn: ScopeFunction = (scope) => {
-    return configuration;
+  configuration: NodeConfig["args"]["configuration"]
+): NodeConfig {
+  const fn: NodeConfig["fn"] = (scope, conf) => {
+    return Promise.resolve(conf.configuration);
   };
 
   const { id, title } = callerId();
@@ -14,6 +19,6 @@ export function config(
     title,
     fn,
     args: { configuration },
-    config: { configuration: { type: "object", value: configuration } },
+    config: { configuration: { type: "string-map", value: configuration } },
   };
 }

@@ -6,9 +6,9 @@ import {
   Tree,
   TreeEventHandler,
 } from "@blueprintjs/core";
-import { IconName, IconNames } from "@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
 import React from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { $selectedGraphId } from "../state";
 
 function getIcon(id: string, obj: any): IconName | undefined {
@@ -148,13 +148,14 @@ export function FileSystemView({ graphs }: { graphs: CompiledGraph[] }) {
   );
 
   return (
-    <Tree
-      className="full-width"
-      contents={nodes}
-      onNodeClick={handleNodeClick}
-      onNodeExpand={handleNodeClick}
-      onNodeCollapse={handleNodeClick}
-    />
+    <div className="full-width">
+      <Tree
+        contents={nodes}
+        onNodeClick={handleNodeClick}
+        onNodeExpand={handleNodeClick}
+        onNodeCollapse={handleNodeClick}
+      />
+    </div>
   );
 }
 

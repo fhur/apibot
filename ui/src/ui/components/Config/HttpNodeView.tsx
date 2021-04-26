@@ -1,7 +1,7 @@
 import { ExecNode } from "@apibot/runtime";
 import { ControlGroup, FormGroup, InputGroup } from "@blueprintjs/core";
 import styled from "@emotion/styled";
-import { JsonEditor } from "./../Editor";
+import { JsonEditor } from "../Editor";
 
 export function HttpNodeView({ node }: { node: ExecNode }) {
   if (node.type !== "apibot.http-node") {

@@ -1,6 +1,7 @@
 import { renderTemplate } from "../template";
 import {
   AnyNode,
+  ApibotNode,
   callerId,
   findLastResponse,
   ScopeFunction,
@@ -16,14 +17,17 @@ function deepEquals(thiz: any, that: any) {
   return thiz === that;
 }
 
-export function assertStatus({
-  from,
-  to,
-}: {
+type AssertStatusArgs = {
   from: number;
   to: number;
-}): AnyNode {
-  const fn: ScopeFunction = (scope) => {
+};
+export type NodeAssertStatus = ApibotNode<
+  "apibot.assert-status",
+  AssertStatusArgs
+>;
+
+export function assertStatus(args: AssertStatusArgs): NodeAssertStatus {
+  const fn: ScopeFunction<AssertStatusArgs> = async (scope, { from, to }) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -49,15 +53,15 @@ export function assertStatus({
     type: "apibot.assert-status",
     title,
     fn,
-    args: { from, to },
+    args: args,
     config: {
-      from: { type: "number", value: from },
-      to: { type: "number", value: to },
+      from: { type: "number", value: args.from },
+      to: { type: "number", value: args.to },
     },
   };
 }
 
-export type Extractor = ((x: any) => any) | string;
+export type Extractor = string;
 
 export function jsonPathToFunction(extractor: Extractor) {
   if (typeof extractor === "function") {
@@ -76,10 +80,10 @@ export function assertBodyEquals({
 }: {
   extract: Extractor;
   expected: any;
-}): ScopeFunction {
+}): ScopeFunction<void> {
   const extractor = jsonPathToFunction(extract);
 
-  return function assertBodyEquals(scope) {
+  return async function assertBodyEquals(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -114,10 +118,10 @@ export function assertBodyOneOf({
 }: {
   extract: Extractor;
   options: any[];
-}): ScopeFunction {
+}): ScopeFunction<void> {
   const extractor = jsonPathToFunction(extract);
 
-  return function assertBodyOneOf(scope) {
+  return async function assertBodyOneOf(scope) {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {

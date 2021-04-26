@@ -1,31 +1,25 @@
 import { Colors } from "@blueprintjs/core";
 import styled from "@emotion/styled";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/idea.css";
-import { Controlled as CodeMirror } from "react-codemirror2";
 import * as monaco from "monaco-editor";
 import React from "react";
 
-require("codemirror/mode/javascript/javascript");
-
-export function Editor2({ value }: { value: string }) {
-  return (
-    <Container>
-      <CodeMirror
-        value={value}
-        options={{
-          mode: { name: "javascript", json: true },
-          theme: "idea",
-          lineNumbers: false,
-        }}
-        onBeforeChange={() => {}}
-      />
-    </Container>
-  );
-}
+// export function Editor2({ value }: { value: string }) {
+//   return (
+//     <Container>
+//       <CodeMirror
+//         value={value}
+//         options={{
+//           mode: { name: "javascript", json: true },
+//           theme: "idea",
+//           lineNumbers: false,
+//         }}
+//         onBeforeChange={() => {}}
+//       />
+//     </Container>
+//   );
+// }
 
 export function JsonEditor({ value }: { value: any }) {
-  return null;
   const ref = React.useRef<HTMLDivElement>(null);
   const [model, setModel] = React.useState<monaco.editor.ITextModel | null>(
     null

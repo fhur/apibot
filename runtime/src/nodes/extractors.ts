@@ -1,20 +1,46 @@
 import { Extractor, jsonPathToFunction } from "./assertions";
 import {
-  AnyNode,
+  ApibotNode,
   callerId,
   findHeader,
   findLastResponse,
-  HttpResponse,
   Scope,
-  ScopeFunction,
   writeAssertionFailed,
 } from "./node";
+import {
+  PropertyControlJsonPath,
+  PropertyControlScopeIdentifier,
+} from "./propertyControls";
 
-export function extractHeader(args: {
-  headerName: string;
-  as: string;
-}): AnyNode {
-  const fn: ScopeFunction = (scope) => {
+export type NodeExtractHeader = ApibotNode<
+  "apibot.extract-header",
+  { headerName: string; as: string }
+>;
+
+function createAsPropertyControl(
+  value: string
+): PropertyControlScopeIdentifier {
+  return {
+    type: "scope-identifier",
+    value: value,
+    label: "Variable Name",
+    description: "The name of the variable",
+  };
+}
+
+function createExtractPropertyControl(value: string): PropertyControlJsonPath {
+  return {
+    type: "json-path",
+    value: value,
+    label: "Extractor",
+    description: "A json path used to extract a value from the scope",
+  };
+}
+
+export function extractHeader(
+  defaultArgs: NodeExtractHeader["args"]
+): NodeExtractHeader {
+  const fn: NodeExtractHeader["fn"] = async (scope, args) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -41,19 +67,29 @@ export function extractHeader(args: {
     type: "apibot.extract-header",
     title,
     fn,
-    args: args,
+    args: defaultArgs,
     config: {
-      headerName: { type: "string", value: args.headerName },
-      as: { type: "string", value: args.as },
+      headerName: {
+        type: "string",
+        value: defaultArgs.headerName,
+        label: "Header Name",
+        description:
+          "The case insensitive name of the header to extract e.g. x-authentication",
+      },
+      as: createAsPropertyControl(defaultArgs.as),
     },
   };
 }
 
-export function extractResponse(args: {
-  extract: Extractor;
-  as: string;
-}): AnyNode {
-  const fn: ScopeFunction = (scope) => {
+export type NodeExtractResponse = ApibotNode<
+  "apibot.extract-response",
+  { extract: Extractor; as: string }
+>;
+
+export function extractResponse(
+  defaultArgs: NodeExtractResponse["args"]
+): NodeExtractResponse {
+  const fn: NodeExtractResponse["fn"] = async (scope, args) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -64,15 +100,17 @@ export function extractResponse(args: {
     return extractFrom(scope, httpResponse, args.as, args.extract);
   };
 
+  const { id, title } = callerId();
+
   return {
-    id: "TODO",
+    id,
     type: "apibot.extract-response",
-    title: "Extract Response",
+    title,
     fn,
-    args,
+    args: defaultArgs,
     config: {
-      extract: { type: "string", value: args.extract },
-      as: { type: "string", value: args.as },
+      extract: createExtractPropertyControl(defaultArgs.extract),
+      as: createAsPropertyControl(defaultArgs.as),
     },
   };
 }
@@ -103,8 +141,15 @@ export function extractFrom(
   }
 }
 
-export function extractBody(args: { extract: Extractor; as: string }): AnyNode {
-  const fn: ScopeFunction = (scope) => {
+export type NodeExtractBody = ApibotNode<
+  "apibot.extract-body",
+  { extract: Extractor; as: string }
+>;
+
+export function extractBody(
+  defaultArgs: NodeExtractBody["args"]
+): NodeExtractBody {
+  const fn: NodeExtractBody["fn"] = async (scope, { extract, as }) => {
     const httpResponse = findLastResponse(scope);
     if (!httpResponse) {
       return writeAssertionFailed(scope, {
@@ -112,7 +157,7 @@ export function extractBody(args: { extract: Extractor; as: string }): AnyNode {
       });
     }
 
-    return extractFrom(scope, httpResponse.body, args.as, args.extract);
+    return extractFrom(scope, httpResponse.body, as, extract);
   };
 
   const { id, title } = callerId();
@@ -121,10 +166,10 @@ export function extractBody(args: { extract: Extractor; as: string }): AnyNode {
     type: "apibot.extract-body",
     title,
     fn,
-    args,
+    args: defaultArgs,
     config: {
-      extract: { type: "string", value: args.extract },
-      as: { type: "string", value: args.as },
+      extract: createExtractPropertyControl(defaultArgs.extract),
+      as: createAsPropertyControl(defaultArgs.as),
     },
   };
 }

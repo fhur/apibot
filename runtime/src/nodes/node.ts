@@ -1,5 +1,6 @@
 import { captureStackTrace } from "../utils/captureStackTrace";
-import { Extractor } from "./assertions";
+import { PropertyControl } from "./propertyControls";
+import { ExecNode } from "./types";
 
 const namespace = "apibot";
 
@@ -22,36 +23,30 @@ export type App = {
   executionHistory: ExecutionHistory;
 };
 
-export type ScopeFunction = (scope: Scope, app: App) => Scope | Promise<Scope>;
-
-export type PropertyControl = { type: any; value: any };
+export type ScopeFunction<Args = unknown> =
+  | ((scope: Scope, args: Args, app: App) => Promise<Scope>)
+  | ((scope: Scope, args: Args, app: App) => Scope);
 
 type PropertyControls<Args> = Record<keyof Args, PropertyControl>;
 
-export type ApibotNode<Type, Args, Config = PropertyControls<Args>> = {
+export type ApibotNode<
+  Type,
+  Args,
+  Config extends PropertyControls<Args> = PropertyControls<Args>
+> = {
   id: string;
   type: Type;
   title: string;
-  fn: ScopeFunction;
+  fn: ScopeFunction<Args>;
   args: Args;
   config: Config;
 };
-
-export type ExecNode =
-  | ApibotNode<"apibot.chain", { fns: ExecNode[] }>
-  | ApibotNode<"apibot.assert-status", { from: number; to: number }>
-  | ApibotNode<"apibot.http-node", HttpRequest>
-  | ApibotNode<"apibot.config", { configuration: Record<string, any> }>
-  | ApibotNode<"apibot.extract-header", { headerName: string; as: string }>
-  | ApibotNode<"apibot.extract-body", { extract: Extractor; as: string }>
-  | ApibotNode<"apibot.extract-response", { extract: Extractor; as: string }>
-  | ApibotNode<"apibot.eval", undefined, undefined>;
 
 export function isExecNode(x: any): x is ExecNode {
   return x && typeof x.type === "string" && typeof x.fn === "function";
 }
 
-export type AnyNode = ExecNode | ScopeFunction;
+export type AnyNode = ExecNode | ScopeFunction<any>;
 
 export function createNode(
   parentId: string,
@@ -65,7 +60,7 @@ export function createNode(
       type: "apibot.eval",
       title: anyNode.name,
       id: childId,
-      config: undefined,
+      config: {},
       args: undefined,
     };
   }
@@ -76,9 +71,10 @@ export function createNode(
 }
 
 export async function executeNode(node: ExecNode, scope: Scope, app: App) {
-  const { fn } = node;
+  const fn = node.fn as ScopeFunction<any>;
+  const args = (node.args as unknown) as any;
   try {
-    const resultingScope = await fn(scope, app);
+    const resultingScope = await fn(scope, args, app);
     app.executionHistory.append(resultingScope, { node });
     return resultingScope;
   } catch (error) {

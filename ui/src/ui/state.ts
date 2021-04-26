@@ -84,7 +84,8 @@ export const $selectedNode = selector<ExecNode | undefined>({
 
     const selectedNodeId = get($selectedNodeId);
     const children = Nodes.getChildren(selectedGraph.root);
-    return children.find((c) => c.id === selectedNodeId);
+    const node = children.find((c) => c.id === selectedNodeId);
+    return node;
   },
 });
 

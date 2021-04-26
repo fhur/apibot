@@ -1,6 +1,6 @@
 import { chain } from "../nodes/chain";
 import { http } from "../nodes/http";
-import { ExecNode } from "../nodes/node";
+import { ExecNode } from "../nodes/types";
 
 describe("chain", () => {
   function example() {

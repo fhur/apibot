@@ -35,7 +35,7 @@ export function repeatUntil({
 }): AnyNode {
   const { id, title } = callerId();
 
-  const fn: ScopeFunction = async (initialScope, app) => {
+  const fn: ScopeFunction<unknown> = async (initialScope, _, app) => {
     let scope = initialScope;
 
     for (let i = 0; i < maxIterations; i++) {
@@ -59,6 +59,7 @@ export function repeatUntil({
 
       logRepeatUntil(scope, message);
     }
+    return scope;
   };
 
   return fn;

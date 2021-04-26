@@ -5,4 +5,6 @@ export * from "./nodes/chain";
 export * from "./nodes/repeatUntil";
 export * from "./nodes/when";
 export * as generators from "./generators";
-export { Scope, AnyNode, ExecNode, isExecNode, App } from "./nodes/node";
+export { Scope, AnyNode, isExecNode, App } from "./nodes/node";
+export { ExecNode } from "./nodes/types";
+export * as propertyControls from "./nodes/propertyControls";

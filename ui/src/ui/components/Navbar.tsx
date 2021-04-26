@@ -65,7 +65,7 @@ export function NavigationBar() {
           icon="list"
           onClick={() => setShowDrawer((show) => !show)}
         >
-          Execution Results
+          Scope
         </Button>
 
         {/* <Button minimal icon="export">
