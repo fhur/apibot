@@ -1,9 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { compileProject, executeGraph } = require("@apibot/compiler");
 
-const log = require("electron-log");
-console.log = log.log;
-
 const path = require("path");
 const url = require("url");
 

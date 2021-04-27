@@ -61,7 +61,7 @@ export function createNode(
       title: anyNode.name,
       id: childId,
       config: {},
-      args: undefined,
+      args: {},
     };
   }
   return {
@@ -76,7 +76,7 @@ export async function executeNode(node: ExecNode, scope: Scope, app: App) {
   try {
     const resultingScope = await fn(scope, args, app);
     app.executionHistory.append(resultingScope, { node });
-    return resultingScope;
+    return { ...scope, ...resultingScope };
   } catch (error) {
     const err = error as Error;
     const resultingScope = writeAssertionFailed(scope, {
@@ -143,7 +143,6 @@ export function writeLastResponse(
   response: HttpResponse
 ): Scope {
   return {
-    ...scope,
     [keyLastRequest]: request,
     [keyLastResponse]: response,
   };
@@ -154,7 +153,6 @@ export function writeAssertionFailed(
   assertionFailed: Assertion
 ): Scope {
   return {
-    ...scope,
     [keyAssertionFailed]: assertionFailed,
   };
 }

@@ -121,6 +121,19 @@ export const $scopes = atom<Record<string, Scope>>({
   default: {},
 });
 
+export const $argsByNodeId = atom<Record<string, any>>({
+  key: "argsByNodeId",
+  default: {},
+});
+
+export function updateArgsByNodeId(
+  nodeId: string,
+  fieldId: string,
+  args: unknown
+) {
+  return () => {};
+}
+
 export const $scopeByNodeId = selectorFamily({
   key: "scopeByNodeId",
   get: (nodeId: string) => ({ get }): Scope | undefined => {

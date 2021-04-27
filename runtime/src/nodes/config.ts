@@ -2,7 +2,7 @@ import { ApibotNode, callerId } from "./node";
 
 export type NodeConfig = ApibotNode<
   "apibot.config",
-  { configuration: Record<string, string> }
+  { configuration: Record<string, any> }
 >;
 
 export function config(

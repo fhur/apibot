@@ -1,63 +1,8 @@
 import { CompiledGraph } from "@apibot/compiler";
-import {
-  Code,
-  Colors,
-  ITreeNode,
-  Tree,
-  TreeEventHandler,
-} from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
+import { ITreeNode, Tree, TreeEventHandler } from "@blueprintjs/core";
 import React from "react";
 import { useRecoilState } from "recoil";
 import { $selectedGraphId } from "../state";
-
-function getIcon(id: string, obj: any): IconName | undefined {
-  // if (Array.isArray(obj)) {
-  //   return IconNames.LIST;
-  // }
-  return undefined;
-}
-
-function toString(any: any) {
-  if (typeof any === "string") {
-    return (
-      <Code style={{ color: Colors.ORANGE1, whiteSpace: "nowrap" }}>
-        "{any}"
-      </Code>
-    );
-  }
-  if (typeof any === "number") {
-    return (
-      <Code style={{ color: Colors.BLACK, fontWeight: "bold" }}>{any}</Code>
-    );
-  }
-  if (any === null) {
-    return (
-      <span style={{ color: Colors.RED1, fontWeight: "bold" }}>{"null"}</span>
-    );
-  }
-  if (Array.isArray(any)) {
-    return `array (${any.length} keys)`;
-  }
-  if (typeof any === "object") {
-    return `object (${Object.keys(any).length} keys)`;
-  }
-
-  return undefined;
-}
-
-function entries(obj: any): Array<[string, any]> {
-  if (obj === null || obj === undefined) {
-    return [];
-  }
-  if (Array.isArray(obj)) {
-    return obj.map((x, i) => [i + "", x]);
-  }
-  if (typeof obj === "object") {
-    return Object.entries(obj);
-  }
-  return [];
-}
 
 function groupBy<T>(xs: T[], fn: (x: T) => string): Record<string, T[]> {
   const grouped: Record<string, T[]> = {};
@@ -99,21 +44,32 @@ function toNodes(
     )
   ).map(
     ([dir, graphs]): ITreeNode<any> => {
-      const childNodes = graphs.map((g) => {
+      const childNodesWithPath = graphs.map((g) => {
         return { ...g, path: g.path.slice(1) };
       });
       const id = `${path}/${dir}`;
       const label = dir;
-      const children = toNodes(childNodes, expandedNodes, id, selectedGraphId);
+      const children = toNodes(
+        childNodesWithPath,
+        expandedNodes,
+        id,
+        selectedGraphId
+      );
       if (children.length === 1 && children[0].label === label) {
         return children[0];
       }
+      const childNodes = toNodes(
+        childNodesWithPath,
+        expandedNodes,
+        id,
+        selectedGraphId
+      );
       return {
         id: id,
         label,
         icon: "folder-open",
-        isExpanded: expandedNodes[id],
-        childNodes: toNodes(childNodes, expandedNodes, id, selectedGraphId),
+        isExpanded: expandedNodes[id] || childNodes.some((c) => c.isSelected),
+        childNodes,
       };
     }
   );

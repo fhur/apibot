@@ -55,8 +55,20 @@ export function assertStatus(args: AssertStatusArgs): NodeAssertStatus {
     fn,
     args: args,
     config: {
-      from: { type: "number", value: args.from },
-      to: { type: "number", value: args.to },
+      from: {
+        type: "number",
+        value: args.from,
+        min: 0,
+        max: 500,
+        label: "HTTP Status from",
+      },
+      to: {
+        type: "number",
+        value: args.to,
+        min: 0,
+        max: 500,
+        label: "HTTP Status to",
+      },
     },
   };
 }
@@ -150,6 +162,6 @@ export function assertBodyOneOf({
       });
     }
 
-    return scope;
+    return {};
   };
 }

@@ -6,16 +6,18 @@ import {
   createNode,
   executeNode,
   findFailedAssertion,
-  ScopeFunction,
 } from "./node";
+import { ExecNode } from "./types";
 
-export type NodeChain = ApibotNode<"apibot.chain", void>;
+export type NodeChain = ApibotNode<"apibot.chain", {}> & {
+  children: ExecNode[];
+};
 
 export function chain(...fns: AnyNode[]): NodeChain {
   const { id, title } = callerId();
   const nodes = fns.map((node, index) => createNode(id, index, node));
 
-  const fn: ScopeFunction<void> = async (initialScope, _, app) => {
+  const fn: NodeChain["fn"] = async (initialScope, _, app) => {
     let scope = initialScope;
     for (const node of nodes) {
       scope = await executeNode(node, scope, app);
@@ -39,12 +41,8 @@ export function chain(...fns: AnyNode[]): NodeChain {
     type: "apibot.chain",
     title,
     fn,
-    args: void 0,
-    config: {
-      fns: {
-        type: "fns",
-        value: nodes,
-      },
-    },
+    children: nodes,
+    args: {},
+    config: {},
   };
 }

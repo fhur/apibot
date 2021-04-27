@@ -17,4 +17,4 @@ export type ExecNode =
   | NodeExtractHeader
   | NodeExtractBody
   | NodeExtractResponse
-  | ApibotNode<"apibot.eval", undefined>;
+  | ApibotNode<"apibot.eval", {}>;

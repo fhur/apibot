@@ -1,4 +1,4 @@
-import { AnyNode, executeNode, Scope, ScopeFunction } from "./node";
+import { executeNode, Scope, ScopeFunction } from "./node";
 import { ExecNode } from "./types";
 
 function evalInScope(condition: string, $: Scope) {

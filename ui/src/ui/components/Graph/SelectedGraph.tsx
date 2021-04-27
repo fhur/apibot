@@ -5,7 +5,7 @@ import { useRecoilState } from "recoil";
 import * as Nodes from "../../model/nodes";
 import { $selectedNodeId } from "../../state";
 import { Separator } from "../Separator";
-import { GraphNodeView } from "./Node";
+import { GraphNodeView } from "./GraphNodeView";
 type Props = {
   graph: CompiledGraph;
 };
@@ -15,7 +15,7 @@ export function SelectedGraph({ graph }: Props) {
   const [, setSelectedNodeId] = useRecoilState($selectedNodeId);
 
   React.useEffect(() => {
-    setSelectedNodeId(nodes[0].id);
+    setSelectedNodeId(nodes[0]?.id);
   }, [nodes, setSelectedNodeId]);
 
   return (

@@ -1,4 +1,10 @@
-import { Colors, Drawer, InputGroup } from "@blueprintjs/core";
+import {
+  Colors,
+  ControlGroup,
+  Drawer,
+  FormGroup,
+  InputGroup,
+} from "@blueprintjs/core";
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { JsonEditor } from "./Editor";
@@ -47,18 +53,14 @@ export function ScopeSearch({ scope }: { scope: any }) {
 
   const filteredScope = filterCurrentExecution(scope, filterScopeQuery);
   return (
-    <>
+    <ControlGroup vertical fill style={{ height: "100%" }}>
       <InputGroup
         value={filterScopeQuery}
         onChange={(e) => setFilterScopeQuery(e.target.value)}
         autoFocus
         placeholder="type to filter"
-        style={{
-          borderRadius: 0,
-          borderBottom: `1px solid ${Colors.LIGHT_GRAY1}`,
-        }}
       ></InputGroup>
       <JsonEditor value={filteredScope} />
-    </>
+    </ControlGroup>
   );
 }

@@ -7,11 +7,11 @@ import {
 } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import styled from "@emotion/styled";
 import "normalize.css/normalize.css";
 import React from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import "./App.css";
 import { CenterPanel } from "./components/CenterPanel";
 import { LeftPanel } from "./components/LeftPanel";
 import { NavigationBar } from "./components/Navbar";

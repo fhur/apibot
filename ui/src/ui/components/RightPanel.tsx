@@ -1,4 +1,4 @@
-import { SelectedNodeView } from "./Config/SelectedNodeView";
+import { SelectedNodeView } from "./Controls/SelectedNodeView";
 
 export function RightPanel() {
   return (

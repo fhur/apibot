@@ -56,7 +56,6 @@ export function extractHeader(
     }
 
     return {
-      ...scope,
       [args.as]: header,
     };
   };
@@ -131,7 +130,6 @@ export function extractFrom(
     }
 
     return {
-      ...scope,
       [as]: extracted,
     };
   } catch (e) {

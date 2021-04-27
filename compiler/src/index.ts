@@ -50,10 +50,21 @@ export function compileProject(
         sf.getFilePath().includes("/src/scenarios/")
     )
     .flatMap((sourceFile) => {
+      const validFunctions = new Set(
+        sourceFile
+          .getFunctions()
+          .filter((f) => (f.getName() ?? "").length > 0)
+          .filter((f) => f.getParameters().length === 0)
+          .map((fn) => fn.getName())
+      );
+
       const requirePath = requireTsFile(sourceFile.getFilePath());
 
       return Object.entries(require(requirePath)).flatMap(
         ([exportName, func]) => {
+          if (!validFunctions.has(exportName)) {
+            return [];
+          }
           try {
             // @ts-ignore
             const node = func();
@@ -118,10 +129,10 @@ export async function executeGraph(
 }
 console.log("running compiler");
 
-// const compiledProject = compileProject(
-//   "/Users/fernandohur/iptiq/iptiq-policy-admin-tester/apibot.config.json"
-// );
-// fs.writeFileSync(
-//   "/tmp/compiled.json",
-//   JSON.stringify(compiledProject, null, 2)
-// );
+const compiledProject = compileProject(
+  "/Users/fernandohur/iptiq/iptiq-policy-admin-tester/apibot.config.json"
+);
+fs.writeFileSync(
+  "/tmp/compiled.json",
+  JSON.stringify(compiledProject, null, 2)
+);

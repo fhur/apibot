@@ -66,8 +66,3 @@ const EditorWrapper = styled.div`
   border: 1px solid ${Colors.LIGHT_GRAY1};
   height: 100%;
 `;
-
-const Container = styled.div`
-  flex: 1;
-  display: flex;
-`;

@@ -7,6 +7,8 @@ export function compileTest(tsConfigFilePath: string) {
 
   project.emitSync();
 
+  project.getTypeChecker();
+
   return project;
 }
 
